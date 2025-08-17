@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food Ordering System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: auto;
+      background: #fff;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      width: 100vw;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100vh;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.8s ease;
+      opacity: 0;
+      z-index: 0;
+      padding: 0 5vw;
+      overflow-y: auto;
+    }
+
+    .page.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    .text-content {
+      max-width: 450px;
+      padding: 20px;
+      z-index: 2;
+    }
+
+    h1, h2 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: #222;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin: 0 0 15px 0;
+      color: #333;
+    }
+
+    p {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 28px;
+      background: #FF7F50;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 127, 80, 0.3);
+    }
+
+    button:hover {
+      background: #FF6347;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 127, 80, 0.4);
+    }
+
+    .plate-wrapper {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .plate {
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transition: all 0.8s ease;
+      transform: scale(0.95);
+      position: relative;
+    }
+
+    .plate:hover {
+      transform: scale(1.05) translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      z-index: 5;
+    }
+
+    /* Different sizes for plates */
+    .plate.size1 { width: 150px; height: 150px; }
+    .plate.size2 { width: 200px; height: 200px; }
+    .plate.size3 { width: 120px; height: 120px; }
+    .plate.size4 { width: 180px; height: 180px; }
+    .plate.size5 { width: 120px; height: 100px; }
+    
+    /* Specific images */
+    .dumpling1 { background-image: url('https://i.pinimg.com/736x/7f/24/69/7f2469e00a29e81e2479adfd683744ad.jpg'); }
+    .dumpling2 { background-image: url('https://i.pinimg.com/1200x/7f/6d/3e/7f6d3ebdca842e61864b698a277c5418.jpg'); }
+    .dumpling3 { background-image: url('https://i.pinimg.com/736x/f5/9c/9a/f59c9a7f63c2cd4bd587f3de73f184a4.jpg'); }
+    .dumpling4 { background-image: url('https://i.pinimg.com/1200x/05/e7/7d/05e77d044a033f77194e65828cbe602f.jpg'); }
+    .dumpling5 { background-image: url('https://i.pinimg.com/736x/06/ac/ba/06acba20c792a38113ddb5c321e869f3.jpg'); }
+
+    /* Navigation Bar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height:25px;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #FF7F50;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar a:hover, .navbar a.active {
+      color: #FF7F50;
+      background: rgba(255, 127, 80, 0.1);
+    }
+
+    /* Progress indicator */
+    .progress-container {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .progress-dot.active {
+      background: #FF7F50;
+      transform: scale(1.2);
+    }
+
+    /* Animation classes */
+    .fade-in-up {
+      animation: fadeInUp 1s forwards;
+    }
+
+    .fade-in-down {
+      animation: fadeInDown 1s forwards;
+    }
+
+    .fade-in-left {
+      animation: fadeInLeft 1s forwards;
+    }
+
+    .fade-in-right {
+      animation: fadeInRight 1s forwards;
+    }
+
+    .float {
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    /* Background patterns */
+    .bg-pattern {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0.05;
+      z-index: 0;
+      background-image: radial-gradient(#FF7F50 2px, transparent 2px);
+      background-size: 30px 30px;
+    }
+
+    /* Order page styles */
+    .order-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 100px auto 50px;
+      padding: 0 20px;
+    }
+
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .food-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .food-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .food-image {
+      height: 180px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .food-info {
+      padding: 20px;
+    }
+
+    .food-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+
+    .food-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FF7F50;
+      margin: 10px 0;
+    }
+
+    .food-description {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .food-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+    }
+
+    .food-details.active {
+      max-height: 300px;
+    }
+
+    .food-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .food-rating {
+      display: flex;
+      align-items: center;
+      color: #FFB74D;
+    }
+
+    .food-time {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .ingredients-list {
+      margin: 10px 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ingredient-tag {
+      background: #f5f5f5;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    /* Payment page styles */
+    .payment-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 100px auto 50px;
+      padding: 0 20px;
+    }
+
+    .payment-tabs {
+      display: flex;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .payment-tab {
+      padding: 15px 30px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .payment-tab.active {
+      color: #FF7F50;
+      border-bottom: 3px solid #FF7F50;
+    }
+
+    .payment-content {
+      display: none;
+    }
+
+    .payment-content.active {
+      display: block;
+    }
+
+    .payment-card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .payment-info {
+      flex: 1;
+    }
+
+    .payment-title {
+      font-weight: 600;
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+
+    .payment-date {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .payment-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FF7F50;
+    }
+
+    .payment-status {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 15px;
+    }
+
+    .status-pending {
+      background: #FFF3E0;
+      color: #FF9800;
+    }
+
+    .status-completed {
+      background: #E8F5E9;
+      color: #4CAF50;
+    }
+
+    /* Profile page styles */
+    .profile-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 100px auto 50px;
+      padding: 0 20px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #FF7F50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: white;
+      font-weight: 600;
+      margin-right: 30px;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .profile-email {
+      color: #666;
+      margin: 5px 0 0 0;
+    }
+
+    .profile-section {
+      margin-bottom: 30px;
+    }
+
+    .profile-section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .profile-info-row {
+      display: flex;
+      margin-bottom: 15px;
+    }
+
+    .profile-info-label {
+      width: 150px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .profile-info-value {
+      flex: 1;
+      color: #333;
+    }
+
+    .edit-button {
+      padding: 8px 20px;
+      background: transparent;
+      border: 2px solid #FF7F50;
+      color: #FF7F50;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: none;
+    }
+
+    .edit-button:hover {
+      background: rgba(255, 127, 80, 0.1);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .modal-close:hover {
+      color: #333;
+      background: none;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+      margin-right: 20px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .modal-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FF7F50;
+      margin: 5px 0 0 0;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      margin: 30px 0;
+    }
+
+    .quantity-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f5f5f5;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: none;
+      margin: 0;
+    }
+
+    .quantity-btn:hover {
+      background: #eee;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .quantity-input {
+      width: 60px;
+      height: 40px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0 15px;
+    }
+
+    .modal-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .total-label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .total-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FF7F50;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      margin: 0 10px;
+    }
+
+    .modal-actions button:first-child {
+      margin-left: 0;
+      background: transparent;
+      border: 2px solid #FF7F50;
+      color: #FF7F50;
+      box-shadow: none;
+    }
+
+    .modal-actions button:first-child:hover {
+      background: rgba(255, 127, 80, 0.1);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .modal-actions button:last-child {
+      margin-right: 0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .page {
+        flex-direction: column;
+        justify-content: flex-start;
+        text-align: center;
+        padding: 80px 20px 40px;
+      }
+
+      .text-content {
+        margin-bottom: 40px;
+      }
+
+      .plate-wrapper {
+        max-width: 100%;
+      }
+
+      .plate.size1, .plate.size3, .plate.size5 {
+        display: none;
+      }
+
+      .navbar {
+        padding: 15px 20px;
+      }
+
+      .nav-links {
+        gap: 10px;
+      }
+
+      .navbar a {
+        padding: 6px 8px;
+        font-size: 0.9rem;
+      }
+
+      .food-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+
+      .profile-info-row {
+        flex-direction: column;
+      }
+
+      .profile-info-label {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+
+      .modal-actions button {
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="#" class="logo">FoodFusion</a>
+    <div class="nav-links">
+      <a href="#" class="active" onclick="activatePage(0)">Home</a>
+      <a href="#" onclick="activatePage(1)">Order</a>
+      <a href="#" onclick="activatePage(2)">Payment</a>
+      <a href="#" onclick="activatePage(3)">Profile</a>
+    </div>
+  </nav>
+
+  <div class="progress-container">
+    <div class="progress-dot active" onclick="activatePage(0)"></div>
+    <div class="progress-dot" onclick="activatePage(1)"></div>
+    <div class="progress-dot" onclick="activatePage(2)"></div>
+    <div class="progress-dot" onclick="activatePage(3)"></div>
+  </div>
+
+  <div class="container">
+    <!-- Home Page (Dumpling Page) -->
+    <section class="page home-page active">
+      <div class="bg-pattern"></div>
+      <div class="text-content fade-in-left">
+        <h1>Welcome to<br>FoodFusion</h1>
+        <p>Experience the finest culinary delights from around the world.</p>
+        <p style="font-size: 0.9rem; color: #777;">
+          Fresh ingredients, authentic recipes, and a passion for great food.
+        </p>
+        <button onclick="activatePage(1)">Order Now</button>
+      </div>
+      <div class="plate-wrapper">
+        <div class="plate size1 dumpling1 float" style="animation-delay: 0.2s"></div>
+        <div class="plate size2 dumpling2 float" style="animation-delay: 0.5s"></div>
+        <div class="plate size3 dumpling3 float" style="animation-delay: 0.8s"></div>
+        <div class="plate size4 dumpling4 float" style="animation-delay: 0.3s"></div>
+        <div class="plate size5 dumpling5 float" style="animation-delay: 0.6s"></div>
+      </div>
+    </section>
+
+    <!-- Order Page (Ramen Page) -->
+    <section class="page order-page">
+      <div class="order-container">
+        <h2>Our Menu</h2>
+        <p>Explore our delicious offerings and place your order</p>
+        
+        <div class="food-grid">
+          <!-- Food Item 1 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/736x/39/d0/e6/39d0e6c6c6fd287b5376d6fbf44b9da0.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Chocolate Icecream</h3>
+              <p class="food-price">Rs.350/-</p>
+              <p class="food-description"> Sweet chocolaty icecream with fresh creme and topped with chocolate syrup, nuts and choco chips!</p>
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">fresh creame'</li>
+                  <li class="ingredient-tag">chocolate sauce </li>
+                  <li class="ingredient-tag">nuts</li>
+                  <li class="ingredient-tag">choco chip toppings</li>
+                
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★★ (4.8)
+                  </div>
+                  <div class="food-time">
+                    20-25 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Chocolate Icecream', 350, 'https://i.pinimg.com/736x/39/d0/e6/39d0e6c6c6fd287b5376d6fbf44b9da0.jpg')">Order</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Food Item 2 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/1200x/05/e7/7d/05e77d044a033f77194e65828cbe602f.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Spicy Miso Ramen</h3>
+              <p class="food-price">Rs.400/-</p>
+              <p class="food-description">Spicy miso broth with ground pork, corn, butter, and medium-firm noodles.</p>
+              
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">Spicy miso paste</li>
+                  <li class="ingredient-tag">Chicken broth</li>
+                  <li class="ingredient-tag">Ground pork</li>
+                  <li class="ingredient-tag">Sweet corn</li>
+                  <li class="ingredient-tag">Butter</li>
+                  <li class="ingredient-tag">Bean sprouts</li>
+                  <li class="ingredient-tag">Scallions</li>
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★☆ (4.6)
+                  </div>
+                  <div class="food-time">
+                    20-25 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Spicy Miso Ramen', 400, 'https://i.pinimg.com/736x/57/1d/ee/571dee24980fd5a8a1ce75266a287c8e.jpg')">Order</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Food Item 3 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/736x/7f/24/69/7f2469e00a29e81e2479adfd683744ad.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Veg-Dumplings</h3>
+              <p class="food-price">Rs.250/-</p>
+              <p class="food-description">Pan-fried dumplings filled with seasoned pork and vegetables.</p>
+              
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">Ground pork</li>
+                  <li class="ingredient-tag">Cabbage</li>
+                  <li class="ingredient-tag">Garlic</li>
+                  <li class="ingredient-tag">Ginger</li>
+                  <li class="ingredient-tag">Green onions</li>
+                  <li class="ingredient-tag">Dumpling wrappers</li>
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★★ (4.9)
+                  </div>
+                  <div class="food-time">
+                    15-20 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Pork Gyoza', 250, 'https://i.pinimg.com/736x/7f/24/69/7f2469e00a29e81e2479adfd683744ad.jpg')">Order</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Food Item 4 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/1200x/7f/6d/3e/7f6d3ebdca842e61864b698a277c5418.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Masala Dosa</h3>
+              <p class="food-price">Rs.200/-</p>
+              <p class="food-description">Masala Dosa with potato and onion filling</p>
+              
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">Ghee</li>
+                  <li class="ingredient-tag">potato</li>
+                  <li class="ingredient-tag">onions</li>
+                  <li class="ingredient-tag">coconut</li>
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★☆ (4.5)
+                  </div>
+                  <div class="food-time">
+                    15-20 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Vegetable Dumplings', 200, 'https://i.pinimg.com/1200x/7f/6d/3e/7f6d3ebdca842e61864b698a277c5418.jpg')">Order</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Food Item 5 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/1200x/4a/94/b6/4a94b6ee23ac4e15bb3ebbe3c4d4fc02.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Chicken Shoyu Ramen</h3>
+              <p class="food-price">Rs.300/-</p>
+              <p class="food-description">Light soy-based broth with tender chicken, bamboo shoots, and wavy noodles.</p>
+              
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">Chicken broth</li>
+                  <li class="ingredient-tag">Soy sauce</li>
+                  <li class="ingredient-tag">Grilled chicken</li>
+                  <li class="ingredient-tag">Bamboo shoots</li>
+                  <li class="ingredient-tag">Spinach</li>
+                  <li class="ingredient-tag">Fish cake</li>
+                  <li class="ingredient-tag">Sesame seeds</li>
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★☆ (4.7)
+                  </div>
+                  <div class="food-time">
+                    20-25 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Chicken Shoyu Ramen', 300, 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 200 200\'><circle cx=\'100\' cy=\'100\' r=\'80\' fill=\'%23f8e2b0\'/><circle cx=\'100\' cy=\'100\' r=\'60\' fill=\'%23f5d78e\'/><path d=\'M60,90 Q80,110 100,90 Q120,70 140,90\' fill=\'none\' stroke=\'%23e6c78f\' stroke-width=\'4\'/><path d=\'M65,100 Q85,120 105,100 Q125,80 145,100\' fill=\'none\' stroke=\'%23e6c78f\' stroke-width=\'4\'/><path d=\'M55,80 Q75,100 95,80 Q115,60 135,80\' fill=\'none\' stroke=\'%23e6c78f\' stroke-width=\'4\'/><circle cx=\'80\' cy=\'85\' r=\'10\' fill=\'%23f44336\'/><circle cx=\'120\' cy=\'85\' r=\'8\' fill=\'%234CAF50\'/></svg>')">Order</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Food Item 6 -->
+          <div class="food-card" onclick="toggleFoodDetails(this)">
+            <div class="food-image" style="background-image: url('https://i.pinimg.com/1200x/be/63/e1/be63e10198523b297483f9eb2bf5d7ea.jpg')"></div>
+            <div class="food-info">
+              <h3 class="food-title">Shrimp Shumai</h3>
+              <p class="food-price">Rs.280/-</p>
+              <p class="food-description">Open-faced steamed dumplings with shrimp and pork filling.</p>
+              
+              <div class="food-details">
+                <p>Ingredients:</p>
+                <ul class="ingredients-list">
+                  <li class="ingredient-tag">Shrimp</li>
+                  <li class="ingredient-tag">Ground pork</li>
+                  <li class="ingredient-tag">Water chestnuts</li>
+                  <li class="ingredient-tag">Shiitake mushrooms</li>
+                  <li class="ingredient-tag">Wonton wrappers</li>
+                  <li class="ingredient-tag">Tobiko (fish roe)</li>
+                </ul>
+                <div class="food-meta">
+                  <div class="food-rating">
+                    ★★★★★ (4.8)
+                  </div>
+                  <div class="food-time">
+                    15-20 min
+                  </div>
+                </div>
+                <button onclick="openOrderModal(event, 'Shrimp Shumai', 280, 'https://i.pinimg.com/736x/f5/9c/9a/f59c9a7f63c2cd4bd587f3de73f184a4.jpg')">Order</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment Page (Sushi Page) -->
+    <section class="page payment-page">
+      <div class="payment-container">
+        <h2>Payment Center</h2>
+        <p>Manage your current and past orders</p>
+        
+        <div class="payment-tabs">
+          <div class="payment-tab active" onclick="switchPaymentTab('ongoing')">Ongoing Payments</div>
+          <div class="payment-tab" onclick="switchPaymentTab('history')">Payment History</div>
+        </div>
+        
+        <div class="payment-content active" id="ongoing-payments">
+          <div id="current-order-summary">
+            <!-- Current order will be displayed here -->
+          </div>
+          
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">Delivery Fee</h3>
+              <p class="payment-date">Today</p>
+            </div>
+            <div class="payment-amount">Rs.50/-</div>
+            <div class="payment-status status-pending">Pending</div>
+          </div>
+          
+          <div class="payment-card" style="background-color: #FFF8E1; border: 1px dashed #FFB74D;">
+            <div class="payment-info">
+              <h3 class="payment-title" style="font-weight: 700;">Total Amount</h3>
+            </div>
+            <div class="payment-amount" id="total-payment-amount" style="font-size: 1.5rem;">Rs.50/-</div>
+            <button style="margin: 0;" onclick="completePayment()">Pay Now</button>
+          </div>
+        </div>
+        
+        <div class="payment-content" id="history-payments">
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">Spicy Miso Ramen + Shrimp Shumai</h3>
+              <p class="payment-date">June 15, 2023</p>
+            </div>
+            <div class="payment-amount">Rs.680/-</div>
+            <div class="payment-status status-completed">Completed</div>
+          </div>
+          
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">Vegetable Dumplings (3 orders)</h3>
+              <p class="payment-date">June 10, 2023</p>
+            </div>
+            <div class="payment-amount">Rs.600/-</div>
+            <div class="payment-status status-completed">Completed</div>
+          </div>
+          
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">Chicken Shoyu Ramen</h3>
+              <p class="payment-date">June 5, 2023</p>
+            </div>
+            <div class="payment-amount">Rs.300/-</div>
+            <div class="payment-status status-completed">Completed</div>
+          </div>
+          
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">Tonkotsu Ramen + Pork Gyoza</h3>
+              <p class="payment-date">May 28, 2023</p>
+            </div>
+            <div class="payment-amount">Rs.600/-</div>
+            <div class="payment-status status-completed">Completed</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile Page (Dessert Page) -->
+    <section class="page profile-page">
+      <div class="profile-container">
+        <div class="profile-header">
+          <div class="profile-avatar">JD</div>
+          <div>
+            <h2 class="profile-name">John Doe</h2>
+            <p class="profile-email">john.doe@example.com</p>
+          </div>
+        </div>
+        
+        <div class="profile-section">
+          <h3 class="profile-section-title">Personal Information</h3>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Full Name</div>
+            <div class="profile-info-value">John Doe</div>
+          </div>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Email</div>
+            <div class="profile-info-value">john.doe@example.com</div>
+          </div>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Phone</div>
+            <div class="profile-info-value">+91 98765 43210</div>
+          </div>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Date of Birth</div>
+            <div class="profile-info-value">January 15, 1985</div>
+          </div>
+          
+          <button class="edit-button">Edit Profile</button>
+        </div>
+        
+        <div class="profile-section">
+          <h3 class="profile-section-title">Delivery Address</h3>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Home Address</div>
+            <div class="profile-info-value">123 Main Street, Apt 4B<br>Mumbai, Maharashtra 400001</div>
+          </div>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Work Address</div>
+            <div class="profile-info-value">456 Business Ave, Suite 300<br>Mumbai, Maharashtra 400002</div>
+          </div>
+          
+          <button class="edit-button">Edit Addresses</button>
+        </div>
+        
+        <div class="profile-section">
+          <h3 class="profile-section-title">Payment Methods</h3>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">Credit Card</div>
+            <div class="profile-info-value">•••• •••• •••• 4567<br>Expires: 05/25</div>
+          </div>
+          
+          <div class="profile-info-row">
+            <div class="profile-info-label">UPI ID</div>
+            <div class="profile-info-value">john.doe@upi</div>
+          </div>
+          
+          <button class="edit-button">Manage Payment Methods</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Order Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-image" id="modal-food-image"></div>
+        <div>
+          <h3 class="modal-title" id="modal-food-title">Food Title</h3>
+          <p class="modal-price" id="modal-food-price">Rs.0/-</p>
+        </div>
+      </div>
+      
+      <div class="quantity-control">
+        <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+        <input type="number" class="quantity-input" id="quantity-input" value="1" min="1" max="10" onchange="updateTotal()">
+        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+      </div>
+      
+      <div class="modal-total">
+        <div class="total-label">Total:</div>
+        <div class="total-price" id="modal-total-price">Rs.0/-</div>
+      </div>
+      
+      <div class="modal-actions">
+        <button onclick="closeOrderModal()">Cancel</button>
+        <button onclick="addToCart()">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Current page index
+    let currentPage = 0;
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const progressDots = document.querySelectorAll('.progress-dot');
+    
+    // Current order data
+    let currentOrder = {
+      items: [],
+      total: 0
+    };
+    
+    // Current modal data
+    let modalData = {
+      name: '',
+      price: 0,
+      quantity: 1,
+      image: ''
+    };
+    
+    // Function to activate a specific page
+    function activatePage(index) {
+      // Update current page
+      currentPage = index;
+      
+      // Remove active class from all pages
+      pages.forEach(page => {
+        page.classList.remove('active');
+      });
+      
+      // Add active class to current page
+      pages[index].classList.add('active');
+      
+      // Animate elements when page becomes active
+      animatePageElements(pages[index]);
+      
+      // Update navigation
+      navLinks.forEach((link, i) => {
+        if (i === index) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      // Update progress dots
+      progressDots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+      
+      // Update payment page if navigating to it
+      if (index === 2) {
+        updatePaymentPage();
+      }
+    }
+    
+    // Function to animate elements when page becomes active
+    function animatePageElements(page) {
+      // Get text content and plates
+      const textContent = page.querySelector('.text-content');
+      if (textContent) {
+        textContent.classList.remove('fade-in-left');
+        void textContent.offsetWidth;
+        textContent.classList.add('fade-in-left');
+      }
+      
+      const plates = page.querySelectorAll('.plate');
+      plates.forEach((plate, index) => {
+        plate.classList.remove('float');
+        void plate.offsetWidth;
+        setTimeout(() => {
+          plate.classList.add('float');
+        }, index * 100);
+      });
+    }
+    
+    // Toggle food details
+    function toggleFoodDetails(card) {
+      const details = card.querySelector('.food-details');
+      details.classList.toggle('active');
+    }
+    
+    // Open order modal
+    function openOrderModal(event, name, price, image) {
+      event.stopPropagation();
+      
+      // Set modal data
+      modalData = {
+        name: name,
+        price: price,
+        quantity: 1,
+        image: image
+      };
+      
+      // Update modal UI
+      document.getElementById('modal-food-title').textContent = name;
+      document.getElementById('modal-food-price').textContent = `Rs.${price}/-`;
+      document.getElementById('modal-food-image').style.backgroundImage = `url('${image}')`;
+      document.getElementById('quantity-input').value = 1;
+      document.getElementById('modal-total-price').textContent = `Rs.${price}/-`;
+      
+      // Show modal
+      document.getElementById('order-modal').classList.add('active');
+    }
+    
+    // Close order modal
+    function closeOrderModal() {
+      document.getElementById('order-modal').classList.remove('active');
+    }
+    
+    // Increase quantity
+    function increaseQuantity() {
+      const input = document.getElementById('quantity-input');
+      const currentValue = parseInt(input.value);
+      if (currentValue < 10) {
+        input.value = currentValue + 1;
+        updateTotal();
+      }
+    }
+    
+    // Decrease quantity
+    function decreaseQuantity() {
+      const input = document.getElementById('quantity-input');
+      const currentValue = parseInt(input.value);
+      if (currentValue > 1) {
+        input.value = currentValue - 1;
+        updateTotal();
+      }
+    }
+    
+    // Update total price
+    function updateTotal() {
+      const quantity = parseInt(document.getElementById('quantity-input').value);
+      modalData.quantity = quantity;
+      const total = modalData.price * quantity;
+      document.getElementById('modal-total-price').textContent = `Rs.${total}/-`;
+    }
+    
+    // Add to cart
+    function addToCart() {
+      // Create order item
+      const orderItem = {
+        name: modalData.name,
+        price: modalData.price,
+        quantity: modalData.quantity,
+        total: modalData.price * modalData.quantity
+      };
+      
+      // Add to current order
+      currentOrder.items.push(orderItem);
+      
+      // Update order total
+      updateOrderTotal();
+      
+      // Close modal
+      closeOrderModal();
+      
+      // Show confirmation
+      alert(`Added ${modalData.quantity} ${modalData.name} to your order!`);
+      
+      // Go to payment page
+      activatePage(2);
+    }
+    
+    // Update order total
+    function updateOrderTotal() {
+      let total = 0;
+      currentOrder.items.forEach(item => {
+        total += item.total;
+      });
+      currentOrder.total = total;
+    }
+    
+    // Update payment page
+    function updatePaymentPage() {
+      const orderSummaryContainer = document.getElementById('current-order-summary');
+      orderSummaryContainer.innerHTML = '';
+      
+      if (currentOrder.items.length === 0) {
+        orderSummaryContainer.innerHTML = `
+          <div class="payment-card">
+            <div class="payment-info">
+              <h3 class="payment-title">No items in your order</h3>
+              <p class="payment-date">Add items from the menu</p>
+            </div>
+            <button style="margin: 0;" onclick="activatePage(1)">Go to Menu</button>
+          </div>
+        `;
+      } else {
+        currentOrder.items.forEach(item => {
+          const itemCard = document.createElement('div');
+          itemCard.className = 'payment-card';
+          itemCard.innerHTML = `
+            <div class="payment-info">
+              <h3 class="payment-title">${item.name} (${item.quantity})</h3>
+              <p class="payment-date">Today</p>
+            </div>
+            <div class="payment-amount">Rs.${item.total}/-</div>
+            <div class="payment-status status-pending">Pending</div>
+          `;
+          orderSummaryContainer.appendChild(itemCard);
+        });
+      }
+      
+      // Update total amount
+      const totalAmount = currentOrder.total + 50; // Adding delivery fee
+      document.getElementById('total-payment-amount').textContent = `Rs.${totalAmount}/-`;
+    }
+    
+    // Complete payment
+    function completePayment() {
+      if (currentOrder.items.length === 0) {
+        alert('Please add items to your order first!');
+        activatePage(1);
+        return;
+      }
+      
+      alert('Payment successful! Your order has been placed.');
+      
+      // Reset current order
+      currentOrder = {
+        items: [],
+        total: 0
+      };
+      
+      // Update payment page
+      updatePaymentPage();
+      
+      // Switch to history tab
+      switchPaymentTab('history');
+    }
+    
+    // Switch payment tabs
+    function switchPaymentTab(tabName) {
+      const tabs = document.querySelectorAll('.payment-tab');
+      const contents = document.querySelectorAll('.payment-content');
+      
+      tabs.forEach(tab => tab.classList.remove('active'));
+      contents.forEach(content => content.classList.remove('active'));
+      
+      if (tabName === 'ongoing') {
+        tabs[0].classList.add('active');
+        document.getElementById('ongoing-payments').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('history-payments').classList.add('active');
+      }
+    }
+    
+    // Initialize first page animations
+    document.addEventListener('DOMContentLoaded', () => {
+      animatePageElements(pages[0]);
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          let nextPage = currentPage + 1;
+          if (nextPage >= pages.length) {
+            nextPage = 0;
+          }
+          activatePage(nextPage);
+        } else if (e.key === 'ArrowLeft') {
+          let prevPage = currentPage - 1;
+          if (prevPage < 0) {
+            prevPage = pages.length - 1;
+          }
+          activatePage(prevPage);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
